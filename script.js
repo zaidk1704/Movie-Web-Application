@@ -19,11 +19,49 @@ let api_key = "04a03760452fdabea07d13c24071c6e3";
 url = `https://api.themoviedb.org/3/movie/popular?api_key=${api_key}&language=en-US&page=${i}`;
 
 searchBtn.addEventListener("click", function () {
-    let movieName = searchInput.vallue;
+    let movieName = searchInput.value.trim();
     if (movieName != "") {
+        document.querySelector(".container").innerHTML = "";
         getData(movieName);
     }
 })
+
+async function getData(movieName) {
+    let searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${api_key}&language=en-US&query=${encodeURIComponent(movieName)}&page=1`;
+    
+    try {
+        const response = await fetch(searchUrl);
+        if (!response.ok) {
+            throw new Error(`An error occurred: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        displaySearchResults(data.results);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displaySearchResults(results) {
+    let container = document.querySelector(".container");
+    
+    if (results.length === 0) {
+        container.innerHTML = "<p>No results found.</p>";
+    } else {
+        for (let movie of results) {
+            container.innerHTML += `<div class="box" onclick="FetchApi(${movie.id})" id="myinput">
+                <img src="http://image.tmdb.org/t/p/w500/${movie.poster_path}" alt="img" />
+                <div class="moviesDetails">
+                    <div class="leftDetails">
+                        <h5>${movie.original_title}</h5>
+                        <p>${movie.release_date}</p>
+                    </div>
+                    <div class="rightDetails rating">${movie.vote_average}%</div>
+                </div>
+            </div>`;
+        }
+    }
+}
 
 fetchData();
 let more = document.querySelector("#showMore");
@@ -140,7 +178,6 @@ function fetchData() {
             console.log(error);
         });
 }
-
 
 
 
